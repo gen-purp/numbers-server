@@ -102,5 +102,29 @@ app.get('/api/numbers/all', async (_req, res) => {
   }
 });
 
+// Get second-most-recent number (value only)
+app.get('/api/numbers/second', async (_req, res) => {
+  try {
+    const doc = await NumberEntry.findOne({}, { value: 1 }, { sort: { savedAt: -1 }, skip: 1 });
+    if (!doc) return res.json({ value: null });
+    res.json({ value: doc.value });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch second-most-recent number' });
+  }
+});
+
+// Get datetime of second-most-recent number
+app.get('/api/numbers/second/datetime', async (_req, res) => {
+  try {
+    const doc = await NumberEntry.findOne({}, { savedAt: 1 }, { sort: { savedAt: -1 }, skip: 1 });
+    if (!doc) return res.json({ savedAt: null });
+    res.json({ savedAt: doc.savedAt });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch second-most-recent datetime' });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`🚀 API listening on :${PORT}`));
