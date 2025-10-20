@@ -70,5 +70,17 @@ res.status(500).json({ error: 'Failed to fetch last datetime' });
 }
 });
 
+// This route is to get ALL of the numbers from the DB, for the 
+// webpage called "All Numbers", which just shows the whole DB table. 
+app.get('/api/numbers/all', async (_req, res) => {
+  try {
+    const docs = await NumberEntry.find({}).sort({ savedAt: -1 });
+    res.json(docs);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch all numbers' });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`🚀 API listening on :${PORT}`));
