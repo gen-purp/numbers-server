@@ -1,4 +1,8 @@
 // server.js
+import User from './models/User.js';
+import VerificationCode from './models/VerificationCode.js';
+import { authMiddleware, createAndSendCode, verifyCode, signToken } from './auth.js';
+
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
