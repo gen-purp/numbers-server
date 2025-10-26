@@ -15,7 +15,6 @@ import NumberEntry from './models/NumberEntry.js';
 import Counter from './models/Counter.js';
 
 // NEW: Auth models & helpers
-import User from './models/User.js';
 import VerificationCode from './models/VerificationCode.js';
 import {
   authMiddleware,
@@ -173,38 +172,63 @@ app.get('/api/me', async (req, res) => {
    NUMBER ROUTES (existing)
    ========================= */
 
-// Create + save random 8-digit number (with serial)
 app.post('/api/numbers', async (_req, res) => {
   try {
-    // Atomically increment counter and get the new value
     const serialDoc = await Counter.findOneAndUpdate(
       { _id: 'numbers' },
       { $inc: { seq: 1 } },
-      { new: true, upsert: true, returnDocument: 'after' }
+      { new: true, upsert: true } // 'new: true' is enough
     );
+    if (!serialDoc) {
+      console.error('Counter findOneAndUpdate returned null');
+      return res.status(500).json({ error: 'Counter update failed' });
+    }
     const nextSerial = serialDoc.seq;
 
-    const value = Math.floor(10000000 + Math.random() * 90000000); // 8-digit
-    const doc = await NumberEntry.create({
-      value,
-      savedAt: new Date(),
-      serial: nextSerial,
-    });
+    const value = Math.floor(10000000 + Math.random() * 90000000);
+    const doc = await NumberEntry.create({ value, savedAt: new Date(), serial: nextSerial });
 
-    res.status(201).json({
-      id: doc._id,
-      value: doc.value,
-      savedAt: doc.savedAt,
-      serial: doc.serial,
-    });
+    res.status(201).json({ id: doc._id, value: doc.value, savedAt: doc.savedAt, serial: doc.serial });
   } catch (err) {
     console.error('POST /api/numbers error:', err);
-    if (err && err.code === 11000) {
-      return res.status(409).json({ error: 'Duplicate serial. Try again.' });
-    }
+    if (err && err.code === 11000) return res.status(409).json({ error: 'Duplicate serial. Try again.' });
     res.status(500).json({ error: 'Failed to save number' });
   }
 });
+
+
+// // Create + save random 8-digit number (with serial)
+// app.post('/api/numbers', async (_req, res) => {
+//   try {
+//     // Atomically increment counter and get the new value
+//     const serialDoc = await Counter.findOneAndUpdate(
+//       { _id: 'numbers' },
+//       { $inc: { seq: 1 } },
+//       { new: true, upsert: true, returnDocument: 'after' }
+//     );
+//     const nextSerial = serialDoc.seq;
+
+//     const value = Math.floor(10000000 + Math.random() * 90000000); // 8-digit
+//     const doc = await NumberEntry.create({
+//       value,
+//       savedAt: new Date(),
+//       serial: nextSerial,
+//     });
+
+//     res.status(201).json({
+//       id: doc._id,
+//       value: doc.value,
+//       savedAt: doc.savedAt,
+//       serial: doc.serial,
+//     });
+//   } catch (err) {
+//     console.error('POST /api/numbers error:', err);
+//     if (err && err.code === 11000) {
+//       return res.status(409).json({ error: 'Duplicate serial. Try again.' });
+//     }
+//     res.status(500).json({ error: 'Failed to save number' });
+//   }
+// });
 
 // Most recent number (value)
 app.get('/api/numbers/last', async (_req, res) => {

@@ -6,3 +6,5 @@ const CounterSchema = new mongoose.Schema({
 });
 
 export default mongoose.model('Counter', CounterSchema);
+
+
