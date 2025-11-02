@@ -1,56 +1,15 @@
-// models/User.js
 import mongoose from 'mongoose';
 
 const UserSchema = new mongoose.Schema(
   {
+    uuid: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    fullName: { type: String, required: true },
-    phone: { type: String },
-    company: { type: String },
-    verified: { type: Boolean, default: true },
+    fullName: { type: String, required: true, trim: true },
+    passwordHash: { type: String, required: true },
     createdAt: { type: Date, default: Date.now }
   },
   { timestamps: false }
 );
 
-// IMPORTANT: No extra index() line here.
-// Do NOT also declare: const User = mongoose.model(...)
-
+// No extra index lines (unique is already on fields)
 export default mongoose.model('User', UserSchema);
-
-// import mongoose from 'mongoose';
-
-// const UserSchema = new mongoose.Schema(
-//   {
-//     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-//     fullName: { type: String, required: true },
-//     phone: { type: String },
-//     company: { type: String },
-//     verified: { type: Boolean, default: true },
-//     createdAt: { type: Date, default: Date.now }
-//   },
-//   { timestamps: false }
-// );
-
-// UserSchema.index({ email: 1 }, { unique: true });
-
-// export default mongoose.model('User', UserSchema);
-
-
-// // import mongoose from 'mongoose';
-
-// // const UserSchema = new mongoose.Schema(
-// // {
-// // email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-// // fullName: { type: String, required: true },
-// // phone: { type: String },
-// // company: { type: String },
-// // verified: { type: Boolean, default: true },
-// // createdAt: { type: Date, default: Date.now }
-// // },
-// // { timestamps: false }
-// // );
-
-// // UserSchema.index({ email: 1 }, { unique: true });
-
-// // export default mongoose.model('User', UserSchema);
